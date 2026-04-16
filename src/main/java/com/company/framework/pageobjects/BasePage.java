@@ -1,4 +1,4 @@
-package com.company.framework.pages;
+package com.company.framework.pageobjects;
 
 import com.company.framework.utils.WaitUtils;
 import com.microsoft.playwright.Page;

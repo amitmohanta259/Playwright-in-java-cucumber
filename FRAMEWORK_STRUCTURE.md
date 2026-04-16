@@ -21,10 +21,15 @@ src
   - **Example files:** `PlaywrightFactory.java`, `BrowserFactory.java`
   - **Code here:** Browser type resolution, launch options, non-test engine setup.
 
-- `src/main/java/com/company/framework/pages`
+- `src/main/java/com/company/framework/pageobjects`
   - **Purpose:** Page Object Model classes for UI flows.
   - **Example files:** `BasePage.java`, `LoginPage.java`, `DashboardPage.java`
   - **Code here:** Element locators, page actions, page-level assertions/helpers.
+
+- `src/main/java/com/company/framework/pageobjectmanager`
+  - **Purpose:** Centralized page object creation and access.
+  - **Example files:** `PageObjectManager.java`
+  - **Code here:** Build and return page object instances from the active `Page`.
 
 - `src/main/java/com/company/framework/utils`
   - **Purpose:** Reusable helper utilities.
@@ -38,8 +43,8 @@ src
 
 - `src/main/java/com/company/framework/managers`
   - **Purpose:** Lifecycle and object orchestration.
-  - **Example files:** `DriverManager.java`, `PageObjectManager.java`, `TestContext.java`
-  - **Code here:** Per-scenario session management, page construction, dependency wiring.
+  - **Example files:** `DriverManager.java`, `TestContext.java`
+  - **Code here:** Per-scenario browser session management and dependency wiring.
 
 - `src/main/java/com/company/framework/hooks`
   - **Purpose:** Scenario-level setup/teardown.
@@ -93,7 +98,7 @@ src
 
 ## Naming Conventions Best Practices
 
-- Use package names in lowercase: `com.company.framework.pages`.
+- Use package names in lowercase: `com.company.framework.pageobjects`.
 - Use class names in PascalCase: `LoginPage`, `DriverManager`.
 - Use methods in camelCase with action intent: `createSession`, `validateStatusCode`.
 - Use variables in camelCase and descriptive names: `baseUrl`, `expectedStatusCode`.

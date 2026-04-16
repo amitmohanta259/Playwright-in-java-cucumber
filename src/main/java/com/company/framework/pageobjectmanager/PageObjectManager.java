@@ -1,7 +1,7 @@
-package com.company.framework.managers;
+package com.company.framework.pageobjectmanager;
 
-import com.company.framework.pages.DashboardPage;
-import com.company.framework.pages.LoginPage;
+import com.company.framework.pageobjects.DashboardPage;
+import com.company.framework.pageobjects.LoginPage;
 import com.microsoft.playwright.Page;
 
 public class PageObjectManager {

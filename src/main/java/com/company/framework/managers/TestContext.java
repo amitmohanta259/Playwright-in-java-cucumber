@@ -1,5 +1,7 @@
 package com.company.framework.managers;
 
+import com.company.framework.pageobjectmanager.PageObjectManager;
+
 public class TestContext {
     private final DriverManager driverManager;
     private final PageObjectManager pageObjectManager;

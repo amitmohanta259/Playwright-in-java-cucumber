@@ -17,11 +17,13 @@ Production-ready automation framework template using:
 |---|---|---|
 | `src/main/java/com/company/framework/config` | Framework configuration | Config readers, constants, environment values, property mapping logic |
 | `src/main/java/com/company/framework/driver` | Browser engine setup | Playwright creation, browser type resolution, launch options |
-| `src/main/java/com/company/framework/pages` | UI Page Object Model layer | Locators, reusable page actions, page-specific helper methods |
+| `src/main/java/com/company/framework/locators` | UI locator repository | Centralized selector constants per page (`LoginPageLocators`, `DashboardPageLocators`) |
+| `src/main/java/com/company/framework/pageobjects` | UI Page Object Model layer | Page Object classes (`BasePage`, `LoginPage`, `DashboardPage`) with reusable page actions |
 | `src/main/java/com/company/framework/utils` | Reusable utility layer | Wait wrappers, JSON/Excel utilities, date-time helpers, common utility functions |
 | `src/main/java/com/company/framework/api` | API abstraction layer | HTTP client wrappers, common API assertions, endpoint helper methods |
 | `src/main/java/com/company/framework/api/pojoclasses` | API models | Request/response POJOs used for serialization/deserialization |
-| `src/main/java/com/company/framework/managers` | Lifecycle and object orchestration | Driver lifecycle manager, page manager, per-scenario context objects |
+| `src/main/java/com/company/framework/managers` | Lifecycle and object orchestration | `DriverManager` and per-scenario context objects |
+| `src/main/java/com/company/framework/pageobjectmanager` | Page object creation layer | `PageObjectManager` class that returns strongly-typed page objects |
 | `src/main/java/com/company/framework/hooks` | Cucumber scenario hooks | `@Before` / `@After` setup-teardown and scenario cleanup |
 | `src/main/java/com/company/framework/listeners` | Test lifecycle listeners | TestNG listeners, Extent report listener, logging hooks |
 | `src/test/java/com/company/tests/runners` | Test execution entry points | Cucumber + TestNG runner classes and parallel execution settings |
@@ -80,7 +82,7 @@ Production-ready automation framework template using:
 ### 6) POM and API layers
 
 - **UI chain:**  
-  `PageObjectManager` -> `LoginPage` / `DashboardPage` -> Playwright actions.
+  `PageObjectManager` -> `LoginPage` / `DashboardPage` -> `LoginPageLocators` / `DashboardPageLocators` -> Playwright actions.
 
 - **API chain:**  
   `DataInsightSteps` -> `ApiClient` -> RestAssured -> API response -> `ApiUtils` assertions.
@@ -139,3 +141,13 @@ mvn -Dsurefire.suiteXmlFiles=src/test/resources/testng.xml test
 - Add screenshot/video capture on failure in hooks/listeners.
 - Add retry analyzer for known flaky external dependencies only.
 - Add CI workflow to publish Extent report artifacts.
+
+---
+
+## Main Java Structure (Important)
+
+The following components are present in `src/main/java/com/company/framework`:
+
+- **Page Objects:** `pageobjects/BasePage.java`, `pageobjects/LoginPage.java`, `pageobjects/DashboardPage.java`
+- **Page Object Manager:** `pageobjectmanager/PageObjectManager.java`
+- **Locator folder:** `locators/LoginPageLocators.java`, `locators/DashboardPageLocators.java`

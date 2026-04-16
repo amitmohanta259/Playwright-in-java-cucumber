@@ -9,13 +9,13 @@ import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ExtentReportListener implements ITestListener {
     private ExtentReports extentReports;
     private final ThreadLocal<ExtentTest> extentTest = new ThreadLocal<>();
-    private final Map<String, ExtentTest> testNodes = new HashMap<>();
+    private final Map<String, ExtentTest> testNodes = new ConcurrentHashMap<>();
 
     @Override
     public void onStart(ITestContext context) {
@@ -27,18 +27,28 @@ public class ExtentReportListener implements ITestListener {
 
     @Override
     public void onTestStart(ITestResult result) {
-        ExtentTest test = testNodes.computeIfAbsent(result.getMethod().getMethodName(), extentReports::createTest);
+        String scenarioName = extractScenarioName(result);
+        String testKey = result.getMethod().getMethodName() + "_" + scenarioName;
+        ExtentTest test = testNodes.computeIfAbsent(testKey, key -> extentReports.createTest(scenarioName));
         extentTest.set(test);
     }
 
     @Override
     public void onTestSuccess(ITestResult result) {
-        extentTest.get().pass("Test passed");
+        ExtentTest test = extentTest.get();
+        if (test != null) {
+            test.pass("Test passed");
+        }
+        extentTest.remove();
     }
 
     @Override
     public void onTestFailure(ITestResult result) {
-        extentTest.get().fail(result.getThrowable());
+        ExtentTest test = extentTest.get();
+        if (test != null) {
+            test.fail(result.getThrowable());
+        }
+        extentTest.remove();
     }
 
     @Override
@@ -46,5 +56,13 @@ public class ExtentReportListener implements ITestListener {
         if (extentReports != null) {
             extentReports.flush();
         }
+    }
+
+    private String extractScenarioName(ITestResult result) {
+        Object[] parameters = result.getParameters();
+        if (parameters != null && parameters.length > 0 && parameters[0] != null) {
+            return parameters[0].toString();
+        }
+        return result.getMethod().getMethodName();
     }
 }
