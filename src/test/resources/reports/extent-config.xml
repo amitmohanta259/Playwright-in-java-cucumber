@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extentreports>
+  <configuration>
+    <theme>standard</theme>
+    <documentTitle>Automation Report</documentTitle>
+    <reportName>Playwright Java Framework</reportName>
+  </configuration>
+</extentreports>
