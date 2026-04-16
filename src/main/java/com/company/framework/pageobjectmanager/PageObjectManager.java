@@ -6,16 +6,18 @@ import com.microsoft.playwright.Page;
 
 public class PageObjectManager {
     private final Page page;
+    private LoginPage objLoginPage;
+    private DashboardPage objDashboardPage;
 
     public PageObjectManager(Page page) {
         this.page = page;
     }
 
-    public LoginPage loginPage() {
-        return new LoginPage(page);
+    public LoginPage getObjLoginPage() {
+        return (objLoginPage == null) ? objLoginPage = new LoginPage(page) : objLoginPage;
     }
 
-    public DashboardPage dashboardPage() {
-        return new DashboardPage(page);
+    public DashboardPage getObjDashboardPage() {
+        return (objDashboardPage == null) ? objDashboardPage = new DashboardPage(page) : objDashboardPage;
     }
 }

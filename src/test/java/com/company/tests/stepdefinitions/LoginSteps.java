@@ -20,22 +20,22 @@ public class LoginSteps {
 
     @Given("user opens login page")
     public void userOpensLoginPage() {
-        PageObjectManager pageObjectManager = testContext.getPageObjectManager();
-        LoginPage loginPage = pageObjectManager.loginPage();
-        loginPage.open(configReader.get("baseUrl"));
+        PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
+        LoginPage objLoginPage = objPageObjectManager.getObjLoginPage();
+        objLoginPage.open(configReader.get("baseUrl"));
     }
 
     @When("user logs in with username {string} and password {string}")
     public void userLogsIn(String username, String password) {
-        PageObjectManager pageObjectManager = testContext.getPageObjectManager();
-        LoginPage loginPage = pageObjectManager.loginPage();
-        loginPage.login(username, password);
+        PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
+        LoginPage objLoginPage = objPageObjectManager.getObjLoginPage();
+        objLoginPage.login(username, password);
     }
 
     @Then("dashboard page title should contain {string}")
     public void dashboardPageTitleShouldContain(String expectedText) {
-        PageObjectManager pageObjectManager = testContext.getPageObjectManager();
-        DashboardPage dashboardPage = pageObjectManager.dashboardPage();
-        Assert.assertTrue(dashboardPage.getTitle().contains(expectedText));
+        PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
+        DashboardPage objDashboardPage = objPageObjectManager.getObjDashboardPage();
+        Assert.assertTrue(objDashboardPage.getTitle().contains(expectedText));
     }
 }
