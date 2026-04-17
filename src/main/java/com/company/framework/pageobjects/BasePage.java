@@ -1,5 +1,6 @@
 package com.company.framework.pageobjects;
 
+import com.company.framework.locators.DashboardPageLocators;
 import com.company.framework.utils.WaitUtils;
 import com.microsoft.playwright.Page;
 
@@ -13,6 +14,7 @@ public class BasePage {
     }
 
     public String getTitle() {
-        return page.title();
+        return page.locator(DashboardPageLocators.TITLE).innerText();
+
     }
 }

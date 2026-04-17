@@ -5,4 +5,5 @@ public final class DashboardPageLocators {
     }
 
     public static final String HEADER = "h1";
+    public static final String TITLE = "//*[text()='My Day']";
 }

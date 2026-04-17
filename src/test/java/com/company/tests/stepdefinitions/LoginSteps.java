@@ -13,7 +13,8 @@ import org.testng.Assert;
 public class LoginSteps {
     private final TestContext testContext;
     private final ConfigReader configReader = new ConfigReader();
-
+    LoginPage objLoginPage;
+    DashboardPage objDashboardPage;
     public LoginSteps(TestContext testContext) {
         this.testContext = testContext;
     }
@@ -21,21 +22,26 @@ public class LoginSteps {
     @Given("user opens login page")
     public void userOpensLoginPage() {
         PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
-        LoginPage objLoginPage = objPageObjectManager.getObjLoginPage();
+        objLoginPage = objPageObjectManager.getObjLoginPage();
         objLoginPage.open(configReader.get("baseUrl"));
     }
 
     @When("user logs in with username {string} and password {string}")
-    public void userLogsIn(String username, String password) {
+    public void userLogsInWithUsernameAndPassword(String username, String password) {
         PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
-        LoginPage objLoginPage = objPageObjectManager.getObjLoginPage();
+        objLoginPage = objPageObjectManager.getObjLoginPage();
         objLoginPage.login(username, password);
     }
 
-    @Then("dashboard page title should contain {string}")
-    public void dashboardPageTitleShouldContain(String expectedText) {
+    @Then("dashboard based on the {string} page title should contain {string}")
+    public void dashboardBasedOnTheStatusPageTitleShouldContainMessage(String status, String expectedText) {
         PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
-        DashboardPage objDashboardPage = objPageObjectManager.getObjDashboardPage();
-        Assert.assertTrue(objDashboardPage.getTitle().contains(expectedText));
+        objDashboardPage = objPageObjectManager.getObjDashboardPage();
+        if(status.equals("valid")){
+            Assert.assertTrue(objDashboardPage.getTitle().contains(expectedText));
+        }else{
+            Assert.assertTrue(objLoginPage.getErrorMessage().equals(expectedText));
+        }
+
     }
 }

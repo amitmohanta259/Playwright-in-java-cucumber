@@ -17,4 +17,8 @@ public class LoginPage extends BasePage {
         page.fill(LoginPageLocators.PASSWORD_INPUT, password);
         page.click(LoginPageLocators.LOGIN_BUTTON);
     }
+
+    public String getErrorMessage(){
+        return page.locator(LoginPageLocators.errorMessage).innerText();
+    }
 }
