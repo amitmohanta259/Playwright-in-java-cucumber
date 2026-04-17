@@ -20,10 +20,6 @@ public class ConfigReader {
     }
 
     public boolean getBoolean(String key) {
-        String overrideValue = System.getProperty(key);
-        if (overrideValue != null) {
-            return Boolean.parseBoolean(overrideValue.trim());
-        }
         return Boolean.parseBoolean(get(key));
     }
 }

@@ -133,16 +133,88 @@ If you want a specific suite:
 mvn -Dsurefire.suiteXmlFiles=src/test/resources/testng.xml test
 ```
 
-Run in headed mode (UI visible):
+## Headless Mode Configuration
 
-```bash
-mvn clean test -Dheadless=false
+Headless mode is controlled only from the framework config file (not Maven command flags).
+
+Update this file:
+
+- `src/test/resources/config/config.properties`
+
+Update this key:
+
+```properties
+headless=true
 ```
 
-Run in headless mode:
+- `headless=true` -> browser runs in headless mode (no UI).
+- `headless=false` -> browser runs in headed mode (UI is visible).
+
+Example:
 
 ```bash
-mvn clean test -Dheadless=true
+mvn clean test
+```
+
+---
+
+## Browser Launch and Navigation Code
+
+### Browser launch code location
+
+- File: `src/main/java/com/company/framework/managers/DriverManager.java`
+- Method: `createSession()`
+
+```java
+public void createSession() {
+    playwright = playwrightFactory.createPlaywright();
+    browser = browserFactory.createBrowser(
+            playwright,
+            configReader.get("browser"),
+            configReader.getBoolean("headless")
+    );
+    context = browser.newContext();
+    page = context.newPage();
+}
+```
+
+### Browser launch options (headless true/false) location
+
+- File: `src/main/java/com/company/framework/driver/BrowserFactory.java`
+- Method: `createBrowser(...)`
+
+```java
+public Browser createBrowser(Playwright playwright, String browserName, boolean headless) {
+    BrowserTypeResolver resolver = new BrowserTypeResolver(playwright);
+    return resolver.resolve(browserName).launch(
+            new com.microsoft.playwright.BrowserType.LaunchOptions().setHeadless(headless)
+    );
+}
+```
+
+### Navigate/open URL code location
+
+- File: `src/main/java/com/company/framework/pageobjects/LoginPage.java`
+- Method: `open(String baseUrl)`
+
+```java
+public void open(String baseUrl) {
+    page.navigate(baseUrl);
+}
+```
+
+### Where the navigation method is called
+
+- File: `src/test/java/com/company/tests/stepdefinitions/LoginSteps.java`
+- Method: `userOpensLoginPage()`
+
+```java
+@Given("user opens login page")
+public void userOpensLoginPage() {
+    PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
+    LoginPage objLoginPage = objPageObjectManager.getObjLoginPage();
+    objLoginPage.open(configReader.get("baseUrl"));
+}
 ```
 
 ---
