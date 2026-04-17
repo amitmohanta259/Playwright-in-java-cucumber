@@ -219,6 +219,200 @@ public void userOpensLoginPage() {
 
 ---
 
+## Login Feature Detailed Breakdown
+
+This section explains the complete login automation flow: where code is stored, the important code blocks, and what each block does.
+
+### 1) Login feature file (BDD test data and steps)
+
+- File: `src/test/resources/features/login.feature`
+- Purpose: Defines login scenarios in business-readable format and drives data variations.
+
+```gherkin
+Feature: Login
+
+  @ui @smoke
+  Scenario Outline: Successful login
+    Given user opens login page
+    When user logs in with username "<username>" and password "<password>"
+    Then dashboard based on the "<status>" page title should contain "<Message>"
+
+    Examples:
+      | username | password | status  | Message                       |
+      | PTuser   | Pass@123 | valid   | My Day                        |
+      | PTuser   | Pass@12  | invalid | Invalid username or password. |
+      |          | Pass@123 | invalid | Invalid username or password. |
+      | PTuser   |          | invalid | Invalid username or password. |
+```
+
+What this does:
+- Uses one `Scenario Outline` for both valid and invalid login.
+- Sends values from `Examples` into step definitions using placeholders.
+- `status` controls whether success assertion or error assertion is expected.
+
+### 2) Test runner file (what gets executed)
+
+- File: `src/test/java/com/company/tests/runners/TestRunner.java`
+- Purpose: Connects Cucumber with TestNG and controls tag-based execution.
+
+```java
+@CucumberOptions(
+        features = "src/test/resources/features",
+        glue = {"com.company.framework.hooks", "com.company.tests.stepdefinitions"},
+        plugin = {"pretty", "summary"},
+        tags = "@ui and @smoke",
+        monochrome = true
+)
+public class TestRunner extends AbstractTestNGCucumberTests {
+    @Override
+    @DataProvider(parallel = false)
+    public Object[][] scenarios() {
+        return super.scenarios();
+    }
+}
+```
+
+What this does:
+- Runs only scenarios matching `@ui and @smoke`.
+- Loads hooks and step definitions from `glue` packages.
+- `parallel = false` executes scenarios one-by-one.
+
+### 3) Step definition file (feature steps to Java actions)
+
+- File: `src/test/java/com/company/tests/stepdefinitions/LoginSteps.java`
+- Purpose: Maps each Gherkin step to page-object calls and assertions.
+
+```java
+@Given("user opens login page")
+public void userOpensLoginPage() {
+    PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
+    objLoginPage = objPageObjectManager.getObjLoginPage();
+    objLoginPage.open(configReader.get("baseUrl"));
+}
+
+@When("user logs in with username {string} and password {string}")
+public void userLogsInWithUsernameAndPassword(String username, String password) {
+    PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
+    objLoginPage = objPageObjectManager.getObjLoginPage();
+    objLoginPage.login(username, password);
+}
+
+@Then("dashboard based on the {string} page title should contain {string}")
+public void dashboardBasedOnTheStatusPageTitleShouldContainMessage(String status, String expectedText) {
+    PageObjectManager objPageObjectManager = testContext.getPageObjectManager();
+    objDashboardPage = objPageObjectManager.getObjDashboardPage();
+    if(status.equals("valid")){
+        Assert.assertTrue(objDashboardPage.getTitle().contains(expectedText));
+    }else{
+        Assert.assertTrue(objLoginPage.getErrorMessage().equals(expectedText));
+    }
+}
+```
+
+What this does:
+- Gets page objects from `PageObjectManager` (same scenario `Page` instance).
+- Calls login action with dynamic example data.
+- For valid data: verifies dashboard title text.
+- For invalid data: verifies login error message text.
+
+### 4) Locator files (all selectors in one place)
+
+- Files:
+  - `src/main/java/com/company/framework/locators/LoginPageLocators.java`
+  - `src/main/java/com/company/framework/locators/DashboardPageLocators.java`
+- Purpose: Centralized UI selectors to avoid hardcoding locators in steps/page logic.
+
+```java
+public final class LoginPageLocators {
+    public static final String USERNAME_INPUT = "//input[@id='username']";
+    public static final String PASSWORD_INPUT = "//input[@id='password']";
+    public static final String LOGIN_BUTTON = "//input[@id='kc-login']";
+    public static final String errorMessage ="//*[@id='input-error']";
+}
+```
+
+```java
+public final class DashboardPageLocators {
+    public static final String HEADER = "h1";
+    public static final String TITLE = "//*[text()='My Day']";
+}
+```
+
+What this does:
+- If UI selectors change, update only locator classes.
+- Keeps step definitions readable and stable.
+
+### 5) Page object files (UI operations by page)
+
+- Files:
+  - `src/main/java/com/company/framework/pageobjects/BasePage.java`
+  - `src/main/java/com/company/framework/pageobjects/LoginPage.java`
+  - `src/main/java/com/company/framework/pageobjects/DashboardPage.java`
+- Purpose: Encapsulates page behavior and reusable page-level methods.
+
+`LoginPage.java`:
+
+```java
+public void open(String baseUrl) {
+    page.navigate(baseUrl);
+}
+
+public void login(String username, String password) {
+    page.fill(LoginPageLocators.USERNAME_INPUT, username);
+    page.fill(LoginPageLocators.PASSWORD_INPUT, password);
+    page.click(LoginPageLocators.LOGIN_BUTTON);
+}
+
+public String getErrorMessage(){
+    return page.locator(LoginPageLocators.errorMessage).innerText();
+}
+```
+
+`BasePage.java`:
+
+```java
+public String getTitle() {
+    return page.locator(DashboardPageLocators.TITLE).innerText();
+}
+```
+
+What this does:
+- `open()` navigates to login URL.
+- `login()` performs user action sequence.
+- `getErrorMessage()` reads invalid-login error.
+- `getTitle()` (in base class) is used by success validation path.
+
+### 6) PageObjectManager file (page object factory/cache)
+
+- File: `src/main/java/com/company/framework/pageobjectmanager/PageObjectManager.java`
+- Purpose: Creates page objects once per scenario and reuses them.
+
+```java
+public LoginPage getObjLoginPage() {
+    return (objLoginPage == null) ? objLoginPage = new LoginPage(page) : objLoginPage;
+}
+
+public DashboardPage getObjDashboardPage() {
+    return (objDashboardPage == null) ? objDashboardPage = new DashboardPage(page) : objDashboardPage;
+}
+```
+
+What this does:
+- Ensures all page objects use the same Playwright `Page`.
+- Avoids repeated object creation in every step method.
+- Keeps step definitions cleaner and consistent.
+
+### 7) End-to-end login flow in this framework
+
+1. `TestRunner` picks `@ui and @smoke` login scenario.
+2. Step definition opens login page via `LoginPage.open(baseUrl)`.
+3. Credentials from `Examples` are passed to `LoginPage.login(...)`.
+4. Assertion path splits by `status`:
+   - `valid` -> dashboard title check.
+   - `invalid` -> login error message check.
+
+---
+
 ## Recommended Next Improvements
 
 - Add environment profiles (`dev`, `qa`, `prod`) using `-Denv=...`.
