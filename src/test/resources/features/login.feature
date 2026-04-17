@@ -1,7 +1,11 @@
 Feature: Login
 
   @ui @smoke
-  Scenario: Successful login
+  Scenario Outline: Successful login
     Given user opens login page
-    When user logs in with username "standard_user" and password "secret_sauce"
+    When user logs in with username "<username>" and password "<password>"
     Then dashboard page title should contain "Swag Labs"
+
+    Examples:
+      | username | password |
+      | PTuser   | Pass@123 |

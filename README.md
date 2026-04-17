@@ -133,6 +133,18 @@ If you want a specific suite:
 mvn -Dsurefire.suiteXmlFiles=src/test/resources/testng.xml test
 ```
 
+Run in headed mode (UI visible):
+
+```bash
+mvn clean test -Dheadless=false
+```
+
+Run in headless mode:
+
+```bash
+mvn clean test -Dheadless=true
+```
+
 ---
 
 ## Recommended Next Improvements
